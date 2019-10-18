@@ -1,0 +1,40 @@
+---
+
+falco_json_output: true
+falco_log_stderr: true
+falco_log_stdout: true
+falco_syslog_output: true
+falco_file_output: false
+falco_file_output_path: './events.txt'
+falco_stdout_output: false
+falco_program_output: false
+falco_program_output_email: 'someone@example.com'
+# falco_slack_output depends on falco_json_output
+# falco_slack_output can't be combined with falco_program_output
+falco_slack_output: true
+falco_slack_output_webhook: 'https://hooks.slack.com/services/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'
+
+falco_rules_files:
+  - /etc/falco/falco_rules.yaml
+  - /etc/falco/falco_rules.local.yaml
+  - /etc/falco/k8s_audit_rules.yaml
+  - /etc/falco/rules.d
+falco_config_template_upload:
+  - { s: falco_rules_w_exceptions.yaml, d: falco_rules.yaml }
+  - { s: falco_rules.local.yaml, d: falco_rules.local.yaml }
+
+## else some macro can be very verbose (ex: on LXD or lxd+kitchen)
+falco_dontwatch_containers: true
+falco_containers_ansible: false
+falco_containers_lxckitchen: false
+
+falco_syslog_target: /var/log/falco/falco.log
+falco_logrotate_days: 90
+
+falco_cgroups_restriction_enable: true
+#falco_cgroups_cpuquota: '60%'
+#falco_cgroups_memorylimit: '1G'
+#falco_cgroups_cpushares: '1024'
+falco_systemd_restriction_enable: true
+# as systemd service
+falco_service_enabled: true

@@ -1,0 +1,7 @@
+---
+
+- name: syncs honeypot data hourly to s3 bucket
+  cron:
+    name: "upload sysdig events"
+    special_time: hourly
+    job: "aws s3 cp /usr/local/src/ s3://hn-data --recursive"

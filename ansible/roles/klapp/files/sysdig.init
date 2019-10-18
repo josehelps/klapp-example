@@ -1,0 +1,10 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          sysdig
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: starts sysdig collection as a service
+### END INIT INFO
+/usr/bin/sysdig -C 500 -W 4 -w /usr/local/src/image.$(hostname).$(date +"%Y%m%d-%H%M%S").gz > /dev/null 2>&1

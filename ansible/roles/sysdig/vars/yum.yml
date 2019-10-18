@@ -1,0 +1,4 @@
+---
+sysdig_package: sysdig
+sysdig_repo_url: http://download.draios.com/stable/rpm/draios.repo
+sysdig_rpm_key: https://s3.amazonaws.com/download.draios.com/DRAIOS-GPG-KEY.public

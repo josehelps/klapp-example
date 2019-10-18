@@ -1,0 +1,66 @@
+---
+
+- block:
+    - name: install falco systemd configuration
+      template:
+        src: "systemd-{{ item }}.service.j2"
+        dest: "/lib/systemd/system/{{ item }}.service"
+        mode: '0644'
+        backup: yes
+      with_items:
+        - falco
+      register: systemdconf
+      ignore_errors: true
+      notify:
+        - reload systemd
+        - restart falco
+    - block:
+        - include: "immutable.yml target_dir=/lib/systemd/system state=pre"
+        - name: install falco systemd configuration
+          template:
+            src: "systemd-{{ item }}.service.j2"
+            dest: "/lib/systemd/system/{{ item }}.service"
+            mode: '0644'
+            backup: yes
+          with_items:
+            - falco
+          notify:
+            - reload systemd
+            - restart falco
+        - include: "immutable.yml target_dir=/lib/systemd/system state=post"
+      when: systemdconf is failed
+    - block:
+        - name: enable and start falco systemd services
+          service:
+            name: "{{ item }}"
+            enabled: yes
+            state: 'started'
+          ignore_errors: true
+          with_items:
+            - falco
+      when: falco_service_enabled
+    - block:
+        - name: disable and stop falco systemd service
+          service:
+            name: "{{ item }}"
+            enabled: no
+            state: 'stopped'
+          ignore_errors: true
+          with_items:
+            - falco
+      when: not falco_service_enabled
+    - name: Remove init.d script
+      file:
+        path: /etc/init.d/falco
+        state: absent
+      register: initd
+      ignore_errors: true
+    - block:
+        - include: "immutable.yml target_dir=/etc/init.d/falco state=pre"
+        - name: Remove init.d script
+          file:
+            path: /etc/init.d/falco
+            state: absent
+        - include: "immutable.yml target_dir=/etc/init.d state=post"
+      when: initd is failed
+  when: ansible_service_mgr == 'systemd'

@@ -1,0 +1,13 @@
+---
+- name: sysdig | setup ansible
+  setup:
+  when: ansible_pkg_mgr is undefined
+
+- name: sysdig | setup repo
+  include: '{{ ansible_pkg_mgr }}.yml'
+
+- name: sysdig | install package
+  package:
+    name: '{{ sysdig_package }}'
+    state: latest
+

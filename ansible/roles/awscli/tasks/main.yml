@@ -1,0 +1,27 @@
+---
+
+- name: Install python pip
+  apt: name=python-pip state=present
+
+- name: Install AWS command line interface
+  sudo: yes
+  pip:
+    name: "awscli"
+    version: "{{awscli_version}}"
+
+- name: Create .aws directory in the home directory
+  file:
+    path: "/root/.aws/"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: 0755
+
+- name: Copy the aws config file to the box
+  sudo: yes
+  template:
+    src: ../templates/aws_config.j2
+    dest: "/root/.aws/config"
+    owner: "root"
+    group: "root"
+    mode: 0600

@@ -1,0 +1,31 @@
+---
+
+- name: yum | install draios repository key
+  rpm_key:
+    state: present
+    key: https://s3.amazonaws.com/download.draios.com/DRAIOS-GPG-KEY.public
+  register: pkg_result
+  until: pkg_result is success
+
+- name: yum | install draios repository
+  get_url:
+    url: http://download.draios.com/stable/rpm/draios.repo
+    dest: /etc/yum.repos.d/draios.repo
+    mode: 0644
+
+- name: yum | kernel-devel install
+  yum:
+    name: "kernel-devel-{{ ansible_kernel }}"
+    state: present
+    update_cache: yes
+  ignore_errors: true
+  register: pkg_result
+  until: pkg_result is success
+
+- name: yum | falco install
+  yum:
+    name: "{{ falco_pkgs }}"
+    state: present
+    update_cache: yes
+  register: pkg_result
+  until: pkg_result is success

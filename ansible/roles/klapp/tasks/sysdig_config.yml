@@ -1,0 +1,15 @@
+---
+
+- name: copy sysdig init
+  copy: src=sysdig.init dest=/usr/local/bin/sysdig.init mode=655
+
+- name: copy sysdig systemd
+  copy: src=sysdig.service dest=/etc/systemd/system/sysdig.service mode=655
+
+- name: start sysdig
+  systemd:
+    name: sysdig
+    enabled: yes
+    masked: no
+    state: started
+

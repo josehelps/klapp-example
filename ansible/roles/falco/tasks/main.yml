@@ -1,0 +1,67 @@
+---
+
+- name: Include version-specific variables for Ubuntu.
+  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
+  when: ansible_distribution == 'Ubuntu'
+- name: Include version-specific variables for Debian.
+  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+  when: ansible_distribution == 'Debian'
+- name: Include version-specific variables for RedHat
+  include_vars: "RedHat-{{ ansible_distribution_version.split('.')[0] }}.yml"
+  when: ansible_os_family == "RedHat"
+
+- import_tasks: debian.yml
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- import_tasks: redhat.yml
+  when: ansible_os_family == "RedHat"
+
+- name: check falco config directory permissions
+  file:
+    dest: /etc/falco
+    state: directory
+    mode: '0700'
+
+- name: configure falco
+  template:
+    src: falco.yaml.j2
+    dest: /etc/falco/falco.yaml
+    mode: '0600'
+    backup: yes
+    validate: 'falco -c %s -L'
+  notify:
+    - restart falco
+
+- name: configure falco rules
+  template:
+    src: "{{ item.s }}.j2"
+    dest: "/etc/falco/{{ item.d }}"
+    mode: '0600'
+    backup: yes
+    validate: 'falco -V %s'
+  notify:
+    - falco global check
+    - restart falco
+  register: rules
+  with_items: "{{ falco_config_template_upload }}"
+
+- include: rsyslog.yml
+- include: logrotate.yml
+
+- include: cgroups.yml
+  when: falco_cgroups_restriction_enable and ansible_service_mgr == 'systemd'
+
+- include: systemd.yml
+  when: falco_systemd_restriction_enable and ansible_service_mgr == 'systemd'
+
+- name: print ansible_virtualization_type when verbosity is 1
+  debug: var=ansible_virtualization_type verbosity=1
+
+- name: ensure service falco enabled and started - not in containers
+  service: name=falco enabled=yes state=started
+  when: >
+    not (ansible_virtualization_type is defined and
+          (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker")
+        )
+## note: for containers, it will not be possible to match kernel headers/devel
+##    which means module compilation fails. only observed on centos7

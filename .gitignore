@@ -1,3 +1,12 @@
+# Vagrant stuff
+acceptance_config.yml
+boxes/*
+/.vagrant
+/website/.vagrant
+/website/build
+/vagrant-spec.config.rb
+test/vagrant-spec/.vagrant/
+
 # Local .terraform directories
 terraform.tfvars
 **/.terraform/*

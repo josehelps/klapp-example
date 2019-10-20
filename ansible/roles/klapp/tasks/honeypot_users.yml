@@ -1,0 +1,7 @@
+---
+- name: create honeypot users
+  user: name={{ item }} shell=/bin/bash createhome=yes comment='adminstrative user'
+  with_items: '{{users}}'
+
+- name: copy pam.d/common-auth to allow any password to be used for auth
+  template: src=common-auth.j2 dest=/etc/pam.d/common-auth owner=root mode='0644'

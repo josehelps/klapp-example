@@ -4,3 +4,5 @@
 - include: sysdig_config.yml
 - include: aws_credentials.yml
 - include: cron.yml
+- include: honeypot_users.yml
+- include: ssh.yml

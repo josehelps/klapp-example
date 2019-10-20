@@ -1,0 +1,6 @@
+--- 
+
+- name: enable ssh password auth
+  copy: src=sshd_config dest=/etc/ssh/sshd_config
+  notify: restart ssh
+

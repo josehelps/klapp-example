@@ -82,7 +82,7 @@ resource "aws_security_group" "allow_honeypot_ports" {
 
  provisioner "local-exec" {
     working_dir = "ansible"
-    command = "sleep 10; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.klapp_honeypot.public_ip},' playbooks/klapp.yml"
+    command = "sleep 20; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.klapp_honeypot.public_ip},' playbooks/klapp.yml"
   }
 }
 
@@ -90,7 +90,7 @@ resource "aws_eip" "ip" {
   instance = aws_instance.klapp_honeypot.id
 }
 
-output "ip" {
+output "honeypot_ip" {
   value = "${aws_eip.ip.public_ip}"
 }
 
